@@ -107,7 +107,7 @@ public class JsonMocker {
     }
 
 
-    String initStartupLog( ){
+    String initStartUpLog( ){
             /*
             `type` string   COMMENT '日志类型',
              `mid` string COMMENT '设备唯一标识',
@@ -146,10 +146,10 @@ public class JsonMocker {
         JsonMocker jsonMocker = new JsonMocker();
         jsonMocker.startupNum = 1000000;
         for (int i = 0; i < jsonMocker.startupNum; i++) {
-            String startupLog = jsonMocker.initStartupLog();
-            jsonMocker.sendLog(startupLog);
+            String StartUpLog = jsonMocker.initStartUpLog();
+            jsonMocker.sendLog(StartUpLog);
             while (!jsonMocker.isQuitGroup.getRandomOpt().getValue()) {
-                String eventLog = jsonMocker.initEventLog(startupLog);
+                String eventLog = jsonMocker.initEventLog(StartUpLog);
                 jsonMocker.sendLog(eventLog);
             }
             try {

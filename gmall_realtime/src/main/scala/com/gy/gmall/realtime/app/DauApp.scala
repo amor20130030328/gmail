@@ -22,50 +22,50 @@ object DauApp {
 
     val inputStream = MyKafkaUtil.getKafkaStream(GmailConstants.KAFKA_TOPIC_STARTUP, ssc)
 
-    val startuplogStream =  inputStream.map{
+    val StartUpLogStream =  inputStream.map{
       record =>
         val jsonStr: String = record.value()
-        val startuplog: StartUpLog = JSON.parseObject(jsonStr,classOf[StartUpLog])
-        val date = new Date(startuplog.ts)
+        val StartUpLog: StartUpLog = JSON.parseObject(jsonStr,classOf[StartUpLog])
+        val date = new Date(StartUpLog.ts)
         val dateStr = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(date)
 
         val dateArr: Array[String] = dateStr.split(" ")
-        startuplog.logDate = dateArr(0)
-        startuplog.logHour = dateArr(1).split(":")(0)
-        startuplog.logHourMinute = dateArr(1)
-        startuplog
+        StartUpLog.logDate = dateArr(0)
+        StartUpLog.logHour = dateArr(1).split(":")(0)
+        StartUpLog.logHourMinute = dateArr(1)
+        StartUpLog
     }
 
-    val filterDStream = startuplogStream.transform { rdd =>
+    val filterDStream = StartUpLogStream.transform { rdd =>
       //周期性执行
       val curdate: String = new SimpleDateFormat("yyyy-MM-dd").format(new Date())
       val jedis: Jedis = RedisUtil.getJedisClient
       val key = "dau:" + curdate
       val dauSet: util.Set[String] = jedis.smembers(key)
       val dauBC: Broadcast[util.Set[String]] = ssc.sparkContext.broadcast(dauSet)
-      val filterRDD = rdd.filter { startuplog =>
+      val filterRDD = rdd.filter { StartUpLog =>
         //executor
         val dauSet: util.Set[String] = dauBC.value
-        !dauSet.contains(startuplog.mid)
+        !dauSet.contains(StartUpLog.mid)
       }
       filterRDD
     }
 
     //去重思路，把相同的mid 的数据分成一组，每组去一个
-    val groupByMidDStream = filterDStream.map(startuplog => (startuplog.mid, startuplog)).groupByKey()
+    val groupByMidDStream = filterDStream.map(StartUpLog => (StartUpLog.mid, StartUpLog)).groupByKey()
 
     val distinctDStream = groupByMidDStream.flatMap {
-      case (mid, startuplogItr) =>
-        startuplogItr.take(1)
+      case (mid, startUpLogItr) =>
+        startUpLogItr.take(1)
     }
 
     distinctDStream.foreachRDD(rdd =>
-      rdd.foreachPartition(startuplogItr =>{
+      rdd.foreachPartition(startUpLogItr =>{
         val jedis: Jedis = RedisUtil.getJedisClient
-        val list = startuplogItr.toList
-        for(startuplog <- list){
-          val key = "dau:"+startuplog.logDate
-          val value = startuplog.mid
+        val list = startUpLogItr.toList
+        for(startUpLog <- list){
+          val key = "dau:"+startUpLog.logDate
+          val value = startUpLog.mid
           jedis.sadd(key,value)
         }
 

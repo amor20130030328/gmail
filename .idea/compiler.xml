@@ -9,6 +9,7 @@
         <module name="gmail_common" />
         <module name="gmail_logger" />
         <module name="gmail_mock" />
+        <module name="gmall_publisher" />
         <module name="gmall_realtime" />
       </profile>
     </annotationProcessing>

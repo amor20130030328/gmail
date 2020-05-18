@@ -20,6 +20,8 @@
         <module>gmail_mock</module>
         <module>gmail_logger</module>
         <module>gmall_realtime</module>
+        <module>dw-chart</module>
+        <module>gmall_canal</module>
     </modules>
 
     <properties>

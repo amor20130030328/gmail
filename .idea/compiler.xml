@@ -6,9 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="dw-chart" />
         <module name="gmail_common" />
         <module name="gmail_logger" />
         <module name="gmail_mock" />
+        <module name="gmall_canal" />
         <module name="gmall_publisher" />
         <module name="gmall_realtime" />
       </profile>

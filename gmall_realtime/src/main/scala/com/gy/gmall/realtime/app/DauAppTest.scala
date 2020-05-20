@@ -25,6 +25,10 @@ object DauAppTest {
 
     val inputDStream: InputDStream[ConsumerRecord[String, String]] = MyKafkaUtil.getKafkaStream(GmailConstants.KAFKA_TOPIC_STARTUP,ssc)
 
+
+
+
+
     val StartUpLogStream: DStream[StartUpLog] = inputDStream.map { record =>
       val jsonStr = record.value()
       val StartUpLog: StartUpLog = JSON.parseObject(jsonStr, classOf[StartUpLog])
@@ -36,6 +40,8 @@ object DauAppTest {
       StartUpLog.logHourMinute = dateArr(1)
       StartUpLog
     }
+
+    StartUpLogStream.count().print()
 
 
     val filteredDStream = StartUpLogStream.transform { rdd =>
@@ -81,9 +87,6 @@ object DauAppTest {
         }
         jedis.close()
       }
-
-
-      
     }
 
     ssc.start()

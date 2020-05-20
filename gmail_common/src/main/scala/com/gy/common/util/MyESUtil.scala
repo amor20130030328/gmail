@@ -1,19 +1,14 @@
 package com.gy.common.util
 
-
 import java.util
 import java.util.Objects
-
-import com.google.gson.GsonBuilder
-import com.gy.common.constant.GmailConstants
 import io.searchbox.client.config.HttpClientConfig
 import io.searchbox.client.{JestClient, JestClientFactory}
 import io.searchbox.core.{Bulk, BulkResult, Index}
 import org.apache.commons.beanutils.BeanUtils
 
 object MyESUtil {
-  private val ES_HOST = "http://hadoop102"
-  private val ES_HTTP_PORT = 9200
+  private val ES_HOST = "http://hadoop102:9200"
   private var factory:JestClientFactory = null
   private var jestClient : JestClient = null
 
@@ -23,7 +18,10 @@ object MyESUtil {
     * @return jestclient
     */
   def getClient: JestClient = {
-    build()
+    factory = new JestClientFactory
+    factory.setHttpClientConfig(new HttpClientConfig.Builder(ES_HOST).multiThreaded(true)
+      .maxTotalConnection(20) //连接总数
+      .connTimeout(10000).readTimeout(10000).build)
     factory.getObject
   }
 
@@ -44,10 +42,17 @@ object MyESUtil {
     * 建立连接
     */
   private def build(): Unit = {
+/*
     factory = new JestClientFactory
-    factory.setHttpClientConfig(new HttpClientConfig.Builder(ES_HOST + ":" + ES_HTTP_PORT).multiThreaded(true)
-      .maxTotalConnection(20) //连接总数
-      .connTimeout(10000).readTimeout(10000).build)
+    factory.setHttpClientConfig(new HttpClientConfig
+    .Builder(ES_HOST)
+      .discoveryEnabled(true)
+      .discoveryFrequency(500l, TimeUnit.MILLISECONDS)
+      .build());
+*/
+
+
+
 
   }
 
@@ -102,6 +107,10 @@ object MyESUtil {
       val index: Index = new Index.Builder(doc).build()
       bulkBuilder.addAction(index)
     }
+
+    val set = new util.HashSet[String]()
+    set.add(ES_HOST)
+    jest.setServers(set)
 
     val items: util.List[BulkResult#BulkResultItem] = jest.execute(bulkBuilder.build()).getItems
     println(items.size()+"保存")

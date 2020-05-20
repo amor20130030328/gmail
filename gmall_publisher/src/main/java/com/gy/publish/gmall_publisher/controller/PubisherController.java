@@ -32,6 +32,15 @@ public class PubisherController {
         newMap.put("id","newMid");
         newMap.put("name","新增设备");
         result.add(newMap);
+
+        Map<String,String> orderAmountMap = new HashMap<>();
+        orderAmountMap.put("id","orderAmount");
+        orderAmountMap.put("name","新增交易额");
+
+        Double orderAmount = publisherService.getOrderAmount(date);
+        orderAmountMap.put("value",orderAmount+"");
+        result.add(orderAmountMap);
+
         return JSON.toJSONString(result);
     }
 
@@ -46,6 +55,16 @@ public class PubisherController {
             Map hourMap=new HashMap();
             hourMap.put("today",dateHoutTDMap);
             hourMap.put("yesterday",dateHoutYDMap);
+            return  JSON.toJSONString(hourMap);
+        }else if("orderAmount".equals(id)){
+            //今天
+            Map orderAmountHourTDMap = publisherService.getOrderAmountHourMap(date);
+            //求昨天分时明细
+            String yesterday = getYesterday(date);
+            Map orderAmountHourYDMap = publisherService.getOrderAmountHourMap(yesterday);
+            Map hourMap = new HashMap();
+            hourMap.put("today",orderAmountHourTDMap);
+            hourMap.put("yesterday",orderAmountHourYDMap);
             return  JSON.toJSONString(hourMap);
         }
         return  null;
